@@ -62,25 +62,32 @@ class AdminPage:
         self.page.wait_for_timeout(2000)
 
     def search_user(self, uname):
-        self.search_input.fill(uname)
-        self.search_button.click()
-
-    def edit_user(self):
-    
-        user_locator = self.page.locator("//div[@role='rowgroup']//div[contains(text(),'testuser1')]")
+        
+        username_field = self.page.locator("input.oxd-input.oxd-input--active").nth(1)
+        username_field.wait_for(state="visible")
+        username_field.fill(uname)
 
         
-        user_locator.wait_for(timeout=5000)
+        self.page.locator("button:has-text('Search')").click()
 
-        self.edit_button.wait_for(state="visible", timeout=5000)
-        self.edit_button.click()
+       
+        self.page.wait_for_timeout(2000)
 
-        self.status.click()
-        self.page.get_by_text("Disabled", exact=True).click()
+    def click_edit_user(self):
+        self.page.wait_for_selector("//div[@class='oxd-table-card']", timeout=5000)
+        edit_button = self.page.locator("//div[@class='oxd-table-card']//i[contains(@class, 'bi-pencil-fill')]")
+        edit_button.first.wait_for(state="visible", timeout=5000)
+        edit_button.first.click()
 
-        self.save_button.click()
+    def edit_user_role_to_admin(self):
+        
+        self.page.locator("//label[text()='User Role']/following::div[@class='oxd-select-text'][0]").click()
 
+        
+        self.page.locator("//div[@role='listbox']//span[text()='Admin']").click()
 
+        
+        self.page.locator("button:has-text('Save')").click()
 
 
 
