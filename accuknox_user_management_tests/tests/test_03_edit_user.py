@@ -1,5 +1,4 @@
 def test_edit_existing_user_role(login_page, admin_page, page, existing_test_user, edited_user_data):
-    
     page.goto("https://opensource-demo.orangehrmlive.com/web/index.php/auth/login")
     login_page.login("Admin", "admin123")
     
