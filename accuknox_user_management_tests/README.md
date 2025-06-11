@@ -88,19 +88,19 @@ pytest --headed --slowmo 1000
 
 ```
 accuknox_user_management_tests/
-├── pages/                  
-│   ├── base_page.py        
-│   ├── login_page.py       
-│   └── admin_page.py       
-├── tests/                  
-│   ├── test_add_user.py   
-│   ├── test_edit_user.py   
-│   ├── test_search_user.py 
-│   ├── test_validate_user.py 
-│   └── test_delete_user.py 
-├── test_data/              
-├── conftest.py             
-├── pytest.ini              #
+├── pages/
+│   ├── base_page.py
+│   ├── login_page.py
+│   └── admin_page.py
+├── tests/
+│   ├── test_add_user.py
+│   ├── test_edit_user.py
+│   ├── test_search_user.py
+│   ├── test_validate_user.py
+│   └── test_delete_user.py
+├── test_data/
+├── conftest.py
+├── README.md
 
 ```
 
