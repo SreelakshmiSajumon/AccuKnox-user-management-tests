@@ -31,8 +31,8 @@ The following test cases are automated:
 1. **Clone the repository**
 
 ```bash
-git clone https://github.com/yourusername/orangehrm-user-management-playwright.git
-cd orangehrm-user-management-playwright
+git clone https://github.com/your-username/AccuKnox-user-management-tests.git
+cd AccuKnox-user-management-tests
 ```
 
 2. **Create virtual environment (recommended)**
@@ -71,27 +71,37 @@ Or run a specific test:
 pytest tests/test_01_add_user.py
 ```
 
+Running in Headed Mode (GUI browser)
+
+```bash
+pytest --headed
+```
+
+Running with Slow Motion (for debugging)
+
+```bash
+pytest --headed --slowmo 1000
+```
 ---
 
 ##  Project Structure
 
 ```
-orangehrm-user-management-playwright/
-│
-├── tests/
-│   ├── test_01_add_user.py
-│   ├── test_02_search_user.py
-│   ├── test_03_edit_user.py
-│   ├── test_04_validate_user.py
-│   └── test_05_delete_user.py
-│
-├── pages/
-│   ├── login_page.py
-│   └── admin_page.py
-│
-├── conftest.py
-├── requirements.txt
-└── README.md
+accuknox_user_management_tests/
+├── pages/                  
+│   ├── base_page.py        
+│   ├── login_page.py       
+│   └── admin_page.py       
+├── tests/                  
+│   ├── test_add_user.py   
+│   ├── test_edit_user.py   
+│   ├── test_search_user.py 
+│   ├── test_validate_user.py 
+│   └── test_delete_user.py 
+├── test_data/              
+├── conftest.py             
+├── pytest.ini              #
+
 ```
 
 ---

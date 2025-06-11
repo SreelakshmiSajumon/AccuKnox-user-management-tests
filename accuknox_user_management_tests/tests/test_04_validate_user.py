@@ -1,9 +1,10 @@
-from pages.login_page import LoginPage
-from pages.admin_page import AdminPage
-
-def test_validate_user(page):
-    login = LoginPage(page)
-    admin = AdminPage(page)
-    login.login("Admin", "admin123")
-    admin.go_to_admin()
-    admin.search_user("testuser1")
+def test_validate_user(login_page, admin_page, page, user_data):
+    page.goto("https://opensource-demo.orangehrmlive.com/web/index.php/auth/login")
+    
+    login_page.login("Admin", "admin123")
+    
+    admin_page.navigate_to_admin_module()
+    
+    admin_page.search_user(user_data["username"])
+    
+    assert admin_page.is_user_found(user_data["username"]), "User details could not be validated"

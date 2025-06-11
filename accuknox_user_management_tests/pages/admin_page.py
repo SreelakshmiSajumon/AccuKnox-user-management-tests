@@ -1,96 +1,89 @@
-import time
-from playwright.sync_api import expect
-from playwright.sync_api import Page
+from .base_page import BasePage
 
-class AdminPage:
-    def __init__(self, page: Page):
-        self.page = page
-        self.admin_menu = page.get_by_role("link", name="Admin")
-        self.add_button = page.get_by_role("button", name="Add")
-        self.user_role = page.locator(".oxd-select-text").nth(0)
-        self.employee_name = page.get_by_placeholder("Type for hints...")
-        self.status = page.locator(".oxd-select-text").nth(1)
-        self.username = page.locator("input[autocomplete='off']").nth(1)
-        self.password = page.locator("input[type='password']").nth(0)
-        self.confirm_password = page.locator("input[type='password']").nth(1)
-        self.save_button = page.get_by_role("button", name="Save")
-        self.search_input = page.locator("input[placeholder='Search']")
-        self.search_button = page.get_by_role("button", name="Search")
-        self.edit_button = page.get_by_role("button", name="Edit")
-        self.delete_button = page.get_by_role("button", name="Delete Selected")
-        self.confirm_delete = page.get_by_role("button", name="Yes, Delete")
-
-    def go_to_admin(self):
-        self.admin_menu.click()
-
-    def add_user(self, role, emp_search_term, uname, pwd):
-        self.add_button.click()
-        self.page.wait_for_selector("text=Add User")
-
+class AdminPage(BasePage):
+    def __init__(self, page):
+        super().__init__(page)
         
-        self.user_role.click()
-        self.page.get_by_role("option", name=role).click()
-
-        
-        self.employee_name.fill(emp_search_term)
-
-        
-        time.sleep(2)  
-
-        
-        suggestion = self.page.locator("div.oxd-autocomplete-dropdown > div").first
-
-        
-        expect(suggestion).to_be_visible(timeout=5000)
-
-        
-        suggestion.click()
-
-        
-        self.status.click()
-        self.page.get_by_role("option", name="Enabled").click()
-
-        
-        self.username.fill(uname)
-        self.password.fill(pwd)
-        self.confirm_password.fill(pwd)
-
-        
-        self.save_button.click()
-
-        
-        self.page.wait_for_timeout(2000)
-
-    def search_user(self, uname):
-        self.search_input.fill(uname)
-        self.search_button.click()
-
-    def edit_user(self):
+        self.admin_menu = "span:has-text('Admin')"
+        self.add_button = "button:has-text('Add')"
+        self.user_role_dropdown = ".oxd-select-text--after"
+        self.employee_name_input = "input[placeholder='Type for hints...']"
+        self.status_dropdown = "(//div[@class='oxd-select-text--after'])[2]"
+        self.username_input = "(//input[@class='oxd-input oxd-input--active'])[2]"
+        self.password_input = "(//input[@type='password'])[1]"
+        self.confirm_password_input = "(//input[@type='password'])[2]"
+        self.save_button = "button:has-text('Save')"
+        self.search_username_input = ":nth-match(input.oxd-input, 2)"
+        self.search_button = "button:has-text('Search')"
+        self.edit_button = "i.bi-pencil-fill"  
+        self.delete_button = "i.bi-trash"  
+        self.confirm_delete_button = "button:has-text('Yes, Delete')"
+        self.user_table_row = ".oxd-table-row"
+        self.toast_message = ".oxd-toast-container"
+        self.user_role_in_table = "(//div[contains(@class, 'oxd-table-cell')][3]"  
+        self.status_in_table = "(//div[contains(@class, 'oxd-table-cell')][5]"  
     
-        user_locator = self.page.locator("//div[@role='rowgroup']//div[contains(text(),'testuser1')]")
-
+    def navigate_to_admin_module(self):
+        self.click(self.admin_menu)
+    
+    def add_user(self, user_data):
+        self.click(self.add_button)
         
-        user_locator.wait_for(timeout=5000)
+        self.click(self.user_role_dropdown)
+        self.click(f"div[role='option']:has-text('{user_data['role']}')")
+        
+        self.fill(self.employee_name_input, user_data['employee_name'])
+        self.page.wait_for_timeout(5000)
+        self.wait_for_element(f"div[role='option']")  
+        self.click(f"div[role='option']:nth-child(1)")  
+        
+        self.click(self.status_dropdown)
+        self.click(f"div[role='option']:has-text('{user_data['status']}')")
+        
+        self.fill(self.username_input, user_data['username'])
+        self.fill(self.password_input, user_data['password'])
+        self.fill(self.confirm_password_input, user_data['password'])
+        
+        self.click(self.save_button)
+        self.wait_for_element(self.toast_message)
+    
+    def search_user(self, username):
+        self.fill(self.search_username_input, username)
+        self.click(self.search_button)
+        self.wait_for_element(self.user_table_row)
+    
+    def edit_user_role(self, username, new_role):
+        """Edit only the user role for an existing user"""
+        self.search_user(username)
+        row = self.page.locator(f"div.oxd-table-row:has-text('{username}')")
+        row.locator(self.edit_button).click()
+        self.wait_for_element(self.user_role_dropdown)
+        self.click(self.user_role_dropdown)
+        self.click(f"div[role='option']:has-text('{new_role}')")
+        self.click(self.save_button)
+        self.wait_for_element(self.toast_message)
+        assert "Success" in self.page.inner_text(self.toast_message)
 
-        self.edit_button.wait_for(state="visible", timeout=5000)
-        self.edit_button.click()
+    def get_user_role(self, username):
+        """Get the current role of a specific user"""
+        self.search_user(username)
+        row = self.page.locator(f"div.oxd-table-row:has-text('{username}')")
+        return row.locator("div.oxd-table-cell:nth-child(3)").inner_text()
 
-        self.status.click()
-        self.page.get_by_text("Disabled", exact=True).click()
-
-        self.save_button.click()
-
-
-
-
-
-    def delete_user(self):
-        checkbox = self.page.locator("//div[@role='row']//input[@type='checkbox']").first
-        checkbox.wait_for(state="visible", timeout=5000)
-        checkbox.click(force=True)
-
-        self.delete_button.wait_for(state="visible", timeout=5000)
-        self.delete_button.click()
-
-        self.confirm_delete.wait_for(state="visible", timeout=5000)
-        self.confirm_delete.click()
+    def delete_user(self, username):
+        self.search_user(username)
+        row = self.page.locator(f"div.oxd-table-row:has-text('{username}')")
+        row.locator(self.delete_button).click()
+        self.click(self.confirm_delete_button)
+        self.wait_for_element(self.toast_message)
+    
+    def is_user_found(self, username):
+        self.search_user(username)
+        return self.page.locator(self.user_table_row).count() > 0
+    
+    def get_user_details(self, username):
+        """Get user role and status from table"""
+        self.search_user(username)
+        role = self.page.locator(self.user_role_in_table).first.inner_text()
+        status = self.page.locator(self.status_in_table).first.inner_text()
+        return {"role": role, "status": status}
